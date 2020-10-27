@@ -3,6 +3,7 @@ package com.github.aznamier.keycloak.event.provider;
 import java.util.HashMap;
 import java.util.Map;
 
+import lombok.extern.slf4j.Slf4j;
 import org.keycloak.events.Event;
 import org.keycloak.events.EventListenerProvider;
 import org.keycloak.events.admin.AdminEvent;
@@ -14,10 +15,11 @@ import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 
+@Slf4j
 public class RabbitMqEventListenerProvider implements EventListenerProvider {
 
-	private RabbitMqConfig cfg;
-	private ConnectionFactory factory;
+	private final RabbitMqConfig cfg;
+	private final ConnectionFactory factory;
 
 	public RabbitMqEventListenerProvider(RabbitMqConfig cfg) {
 		this.cfg = cfg;
@@ -67,24 +69,22 @@ public class RabbitMqEventListenerProvider implements EventListenerProvider {
 				.contentEncoding("UTF-8");
 		return propsBuilder.build();
 	}
-	
 
 	private void publishNotification(String messageString, BasicProperties props, String routingKey) {
-
-		
 
 		try {
 			Connection conn = factory.newConnection();
 			Channel channel = conn.createChannel();
-			
 			channel.basicPublish(cfg.getExchange(), routingKey, props, messageString.getBytes());
-			System.out.println("keycloak-to-rabbitmq SUCCESS sending message: " + routingKey);
+			log.info("keycloak-to-rabbitmq SUCCESS sending message: " + routingKey);
 			channel.close();
 			conn.close();
 
 		} catch (Exception ex) {
-			System.err.println("keycloak-to-rabbitmq ERROR sending message: " + routingKey);
-			ex.printStackTrace();
+			// System.err.println("keycloak-to-rabbitmq ERROR sending message: " + routingKey);
+			// ex.printStackTrace();
+			log.error("keycloak-to-rabbitmq ERROR sending message: " + routingKey);
+			log.error(ex.getMessage(), ex);
 		}
 	}
 

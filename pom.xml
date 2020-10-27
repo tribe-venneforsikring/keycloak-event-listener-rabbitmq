@@ -5,13 +5,12 @@
     <groupId>com.github.aznamier.keycloak.event.provider</groupId>
     <artifactId>keycloak-to-rabbit</artifactId>
     <packaging>jar</packaging>
-	<version>1.0</version>
-    
-
+	<version>1.1</version>
 
     <name>Keycloak: Event Publisher to RabbitMQ</name>
     <properties>
     	<keycloak.version>11.0.0</keycloak.version>
+        <org.projectlombok.version>1.18.16</org.projectlombok.version>
     	<jar.finalName>${project.artifactId}-${project.version}</jar.finalName>
     </properties>
     
@@ -22,10 +21,7 @@
 	     <url>https://maven.pkg.github.com/aznamier/keycloak-event-listener-rabbitmq</url>
 	   </repository>
 	</distributionManagement>
-	
-	
-	
-	
+
     <dependencies>
         <dependency>
             <groupId>org.keycloak</groupId>
@@ -62,9 +58,15 @@
 		<dependency>
 		    <groupId>com.rabbitmq</groupId>
 		    <artifactId>amqp-client</artifactId>
-		    <version>5.9.0</version>
+		    <version>5.10.0</version>
 		</dependency>
-        
+
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>${org.projectlombok.version}</version>
+            <optional>true</optional>
+        </dependency>
     </dependencies>
 
     <build>

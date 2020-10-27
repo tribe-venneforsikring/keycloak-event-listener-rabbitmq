@@ -1,6 +1,6 @@
 package com.github.aznamier.keycloak.event.provider;
 
-
+import lombok.extern.slf4j.Slf4j;
 import org.keycloak.Config.Scope;
 import org.keycloak.events.Event;
 import org.keycloak.events.admin.AdminEvent;
@@ -8,7 +8,7 @@ import org.keycloak.events.admin.AdminEvent;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-
+@Slf4j
 public class RabbitMqConfig {
 	
 	public static final ObjectMapper rabbitMqObjectMapper = new ObjectMapper();
@@ -36,7 +36,7 @@ public class RabbitMqConfig {
 	}
 	
 	public static String calculateRoutingKey(Event event) {
-		//KK.EVENT.CLIENT.<REALM>.<RESULT>.<CLIENT>.<EVENT_TYPE>
+		// KK.EVENT.CLIENT.<REALM>.<RESULT>.<CLIENT>.<EVENT_TYPE>
 		String routingKey = ROUTING_KEY_PREFIX
 					+ ".CLIENT"
 					+ "." + event.getRealmId()
@@ -64,12 +64,11 @@ public class RabbitMqConfig {
 			}
 			
 		} catch (JsonProcessingException e) {
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		}
 		return messageAsJson;
 	}
-	
-	
+
 	public static RabbitMqConfig createFromScope(Scope config) {
 		RabbitMqConfig cfg = new RabbitMqConfig();
 		
@@ -81,7 +80,6 @@ public class RabbitMqConfig {
         
 		cfg.exchange = resolveConfigVar(config, "exchange", "amq.topic");
 		return cfg;
-		
 	}
 	
 	private static String resolveConfigVar(Scope config, String variableName, String defaultValue) {
@@ -90,15 +88,14 @@ public class RabbitMqConfig {
 		if(config != null && config.get(variableName) != null) {
 			value = config.get(variableName);
 		} else {
-			//try from env variables eg: KK_TO_RMQ_URL:
+			// try from env variables eg: KK_TO_RMQ_URL:
 			String envVariableName = "KK_TO_RMQ_" + variableName.toUpperCase();
 			if(System.getenv(envVariableName) != null) {
 				value = System.getenv(envVariableName);
 			}
 		}
-		System.out.println("keycloak-to-rabbitmq configuration: " + variableName + "=" + value);
+		log.info("keycloak-to-rabbitmq configuration: " + variableName + "=" + value);
 		return value;
-		
 	}
 	
 	
