@@ -1,4 +1,4 @@
-package com.github.aznamier.keycloak.event.provider;
+package no.intellitech.event.provider;
 
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;

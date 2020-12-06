@@ -11,7 +11,7 @@ For example here is the notification of the user updated by administrator
 
 ```
 {
-  "@class" : "com.github.aznamier.keycloak.event.provider.EventAdminNotificationMqMsg",
+  "@class" : "EventAdminNotificationMqMsg",
   "time" : 1596951200408,
   "realmId" : "MYREALM",
   "authDetails" : {

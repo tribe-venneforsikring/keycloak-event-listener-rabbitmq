@@ -1,1 +1,1 @@
-com.github.aznamier.keycloak.event.provider.RabbitMqEventListenerProviderFactory
+no.intellitech.event.provider.RabbitMqEventListenerProviderFactory

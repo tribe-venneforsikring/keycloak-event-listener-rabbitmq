@@ -1,4 +1,4 @@
-package com.github.aznamier.keycloak.event.provider;
+package no.intellitech.event.provider;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

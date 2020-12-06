@@ -1,4 +1,4 @@
-package com.github.aznamier.keycloak.event.provider;
+package no.intellitech.event.provider;
 
 import java.io.Serializable;
 
