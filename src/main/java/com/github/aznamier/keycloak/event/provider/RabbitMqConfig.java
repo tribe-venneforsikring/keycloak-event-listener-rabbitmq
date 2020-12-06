@@ -1,6 +1,7 @@
 package com.github.aznamier.keycloak.event.provider;
 
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.keycloak.Config.Scope;
 import org.keycloak.events.Event;
 import org.keycloak.events.admin.AdminEvent;
@@ -8,9 +9,10 @@ import org.keycloak.events.admin.AdminEvent;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-@Slf4j
 public class RabbitMqConfig {
-	
+
+	private static final Logger log = LoggerFactory.getLogger(RabbitMqConfig.class);
+
 	public static final ObjectMapper rabbitMqObjectMapper = new ObjectMapper();
 	public static String ROUTING_KEY_PREFIX = "KK.EVENT";
 
@@ -47,7 +49,7 @@ public class RabbitMqConfig {
 		return normalizeKey(routingKey);
 	}
 	
-	//Remove all characters apart a-z, A-Z, 0-9, space, underscore, eplace all spaces and hyphens with underscore
+	// Remove all characters apart a-z, A-Z, 0-9, space, underscore, eplace all spaces and hyphens with underscore
 	public static final String normalizeKey(String stringToNormalize) {
 		return stringToNormalize.replaceAll("[^\\*#a-zA-Z0-9 _.-]", "").
 				replaceAll(" ", "_");
@@ -79,6 +81,10 @@ public class RabbitMqConfig {
 		cfg.vhost = resolveConfigVar(config, "vhost", "");
         
 		cfg.exchange = resolveConfigVar(config, "exchange", "amq.topic");
+
+		log.info("hostUrl: {}, port: {}, username: {}, password: {}, vhost: {}, exchange: {}",
+				cfg.hostUrl, cfg.port, cfg.username, cfg.password, cfg.vhost, cfg.exchange);
+
 		return cfg;
 	}
 	
@@ -97,7 +103,12 @@ public class RabbitMqConfig {
 		log.info("keycloak-to-rabbitmq configuration: " + variableName + "=" + value);
 		return value;
 	}
-	
+
+	@Override
+	public String toString() {
+		return String.format("hostUrl: %s, port: %s, username: %s, password: %s, vhost: %s, exchange: %s",
+				hostUrl, port, username, password, vhost, exchange);
+	}
 	
 	public String getHostUrl() {
 		return hostUrl;

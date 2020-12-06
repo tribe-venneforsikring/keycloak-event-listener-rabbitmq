@@ -1,9 +1,11 @@
 package com.github.aznamier.keycloak.event.provider;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
-import lombok.extern.slf4j.Slf4j;
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
 import org.keycloak.events.Event;
 import org.keycloak.events.EventListenerProvider;
 import org.keycloak.events.admin.AdminEvent;
@@ -14,15 +16,21 @@ import com.rabbitmq.client.AMQP.BasicProperties.Builder;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
+import org.keycloak.models.KeycloakSession;
+import org.keycloak.models.RealmModel;
+import org.keycloak.models.UserModel;
 
-@Slf4j
 public class RabbitMqEventListenerProvider implements EventListenerProvider {
+
+	private static final Logger log = LogManager.getLogger(RabbitMqEventListenerProvider.class);
 
 	private final RabbitMqConfig cfg;
 	private final ConnectionFactory factory;
+	private final KeycloakSession session;
 
-	public RabbitMqEventListenerProvider(RabbitMqConfig cfg) {
+	public RabbitMqEventListenerProvider(RabbitMqConfig cfg, KeycloakSession session) {
 		this.cfg = cfg;
+		this.session = session;
 		
 		this.factory = new ConnectionFactory();
 
@@ -41,11 +49,25 @@ public class RabbitMqEventListenerProvider implements EventListenerProvider {
 	@Override
 	public void onEvent(Event event) {
 		EventClientNotificationMqMsg msg = EventClientNotificationMqMsg.create(event);
+		populateMoreValues(msg);
 		String routingKey = RabbitMqConfig.calculateRoutingKey(event);
 		String messageString = RabbitMqConfig.writeAsJson(msg, true);
 		
 		BasicProperties msgProps = this.getMessageProps(EventClientNotificationMqMsg.class.getName());
 		this.publishNotification(messageString, msgProps, routingKey);
+	}
+
+	private void populateMoreValues(EventClientNotificationMqMsg event) {
+		String userId = event.getUserId();
+		RealmModel realm = session.realms().getRealm(event.getRealmId());
+		UserModel user = session.users().getUserById(userId, realm);
+
+		// get all attributes
+		//Map<String, List<String>> allAttributes = user.getAttributes(); // or
+		// get Attribute by name
+		event.setNin(user.getFirstAttribute("nin"));
+		event.setFirstName(user.getFirstName());
+		event.setLastName(user.getLastName());
 	}
 
 	@Override
@@ -81,6 +103,7 @@ public class RabbitMqEventListenerProvider implements EventListenerProvider {
 			conn.close();
 
 		} catch (Exception ex) {
+			log.info(cfg.toString());
 			// System.err.println("keycloak-to-rabbitmq ERROR sending message: " + routingKey);
 			// ex.printStackTrace();
 			log.error("keycloak-to-rabbitmq ERROR sending message: " + routingKey);

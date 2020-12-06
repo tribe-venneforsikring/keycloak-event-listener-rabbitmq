@@ -16,7 +16,11 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 public class EventClientNotificationMqMsg extends Event implements Serializable {
 
 	private static final long serialVersionUID = -2192461924304841222L;
-	
+
+	private String firstName;
+	private String lastName;
+	private String nin; // Is Signicat's new name on SSN
+
 	public static EventClientNotificationMqMsg create(Event event) {
 		EventClientNotificationMqMsg msg = new EventClientNotificationMqMsg();
 		msg.setClientId(event.getClientId());
@@ -32,5 +36,27 @@ public class EventClientNotificationMqMsg extends Event implements Serializable 
 		return msg;
 	}
 
-	
+	public String getFirstName() {
+		return firstName;
+	}
+
+	public void setFirstName(String firstName) {
+		this.firstName = firstName;
+	}
+
+	public String getLastName() {
+		return lastName;
+	}
+
+	public void setLastName(String lastName) {
+		this.lastName = lastName;
+	}
+
+	public String getNin() {
+		return nin;
+	}
+
+	public void setNin(String nin) {
+		this.nin = nin;
+	}
 }
