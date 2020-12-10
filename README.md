@@ -50,7 +50,10 @@ therefore its easy for Rabbit client to subscribe to selective combinations eg:
 
 #### Configuration 
 ###### OPTION 1: just configure **ENVIRONMENT VARIABLES**
-  - `KK_TO_RMQ_URL` - default: *localhost*
+Env `KK_TO_RMQ_URI` has predecence over the other variables 
+- `KK_TO_RMQ_URI` - example: *amqps://imk345dk:aHpq90Z435309fsdsdgf5KM6Cx5Ra0ovpE@crow.rmq.cloudamqp.com/imk345dk*  
+OR
+- `KK_TO_RMQ_URL` - default: *localhost*
   - `KK_TO_RMQ_PORT` - default: *5672*
   - `KK_TO_RMQ_VHOST` - default: *empty*
   - `KK_TO_RMQ_EXCHANGE` - default: *amq.topic*

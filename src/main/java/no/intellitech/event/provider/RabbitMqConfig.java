@@ -9,6 +9,10 @@ import org.keycloak.events.admin.AdminEvent;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import java.util.Optional;
+
+import static no.intellitech.event.provider.RabbitUri.CLOUDAMQP_URL;
+
 public class RabbitMqConfig {
 
 	private static final Logger log = LoggerFactory.getLogger(RabbitMqConfig.class);
@@ -50,7 +54,7 @@ public class RabbitMqConfig {
 	}
 	
 	// Remove all characters apart a-z, A-Z, 0-9, space, underscore, eplace all spaces and hyphens with underscore
-	public static final String normalizeKey(String stringToNormalize) {
+	public static String normalizeKey(String stringToNormalize) {
 		return stringToNormalize.replaceAll("[^\\*#a-zA-Z0-9 _.-]", "").
 				replaceAll(" ", "_");
 	}
@@ -73,13 +77,25 @@ public class RabbitMqConfig {
 
 	public static RabbitMqConfig createFromScope(Scope config) {
 		RabbitMqConfig cfg = new RabbitMqConfig();
-		
-		cfg.hostUrl = resolveConfigVar(config, "url", "localhost");
-		cfg.port = Integer.valueOf(resolveConfigVar(config, "port", "5672"));
-		cfg.username = resolveConfigVar(config, "username", "admin");
-		cfg.password = resolveConfigVar(config, "password", "admin");
-		cfg.vhost = resolveConfigVar(config, "vhost", "");
-        
+
+		Optional<String> cloudAmqpUrlOpt = RabbitUri.getCloudAmqpUrlFromEnv();
+		if (cloudAmqpUrlOpt.isPresent()) {
+			log.info("Found " + CLOUDAMQP_URL + ". Uri is: " + cloudAmqpUrlOpt.get());
+			RabbitUri uri = new RabbitUri(cloudAmqpUrlOpt.get());
+			cfg.hostUrl = uri.getHost();
+			cfg.port = uri.getPort();
+			cfg.username = uri.getUser();
+			cfg.password = uri.getPwd();
+			cfg.vhost = uri.getPath();
+		}
+		else {
+			log.info("Didn't find " +  CLOUDAMQP_URL + " env variable. Reading KK_TO_RMQ_* env variables instead.");
+			cfg.hostUrl = resolveConfigVar(config, "url", "localhost");
+			cfg.port = Integer.valueOf(resolveConfigVar(config, "port", "5672"));
+			cfg.username = resolveConfigVar(config, "username", "admin");
+			cfg.password = resolveConfigVar(config, "password", "admin");
+			cfg.vhost = resolveConfigVar(config, "vhost", "");
+		}
 		cfg.exchange = resolveConfigVar(config, "exchange", "amq.topic");
 
 		log.info("hostUrl: {}, port: {}, username: {}, password: {}, vhost: {}, exchange: {}",
@@ -87,7 +103,7 @@ public class RabbitMqConfig {
 
 		return cfg;
 	}
-	
+
 	private static String resolveConfigVar(Scope config, String variableName, String defaultValue) {
 		
 		String value = defaultValue;

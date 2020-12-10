@@ -58,15 +58,22 @@ public class RabbitMqEventListenerProvider implements EventListenerProvider {
 
 	private void populateMoreValues(EventClientNotificationMqMsg event) {
 		String userId = event.getUserId();
+		log.info("populateMoreValues userId: " + userId);
+		log.info("populateMoreValues RealmId: " + event.getRealmId());
 		RealmModel realm = session.realms().getRealm(event.getRealmId());
-		UserModel user = session.users().getUserById(userId, realm);
-
-		// get all attributes
-		//Map<String, List<String>> allAttributes = user.getAttributes(); // or
-		// get Attribute by name
-		event.setNin(user.getFirstAttribute("nin"));
-		event.setFirstName(user.getFirstName());
-		event.setLastName(user.getLastName());
+		log.info("populateMoreValues RealmModel: " + realm);
+		if (userId != null) {
+			UserModel user = session.users().getUserById(userId, realm);
+			log.info("populateMoreValues user: " + user);
+			// get all attributes
+			//Map<String, List<String>> allAttributes = user.getAttributes(); // or
+			// get Attribute by name
+			String nin = user.getFirstAttribute("nin");
+			log.info("populateMoreValues nin: " + nin);
+			event.setNin(user.getFirstAttribute("nin"));
+			event.setFirstName(user.getFirstName());
+			event.setLastName(user.getLastName());
+		}
 	}
 
 	@Override
