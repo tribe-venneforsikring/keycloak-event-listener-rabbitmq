@@ -1,8 +1,5 @@
 package no.intellitech.event.provider;
 
-import org.checkerframework.checker.nullness.Opt;
-
-import javax.swing.text.html.Option;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Optional;
