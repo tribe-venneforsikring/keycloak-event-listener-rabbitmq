@@ -31,7 +31,11 @@ public class RabbitUri {
         this.pwd = userInfo[1];
         this.host = uri.getHost();
         this.port = uri.getPort();
-        this.path = uri.getPath();
+        if (uri.getPath().startsWith("/")) {
+            this.path = uri.getPath().substring(1);
+        } else {
+            this.path = uri.getPath();
+        }
     }
 
     public static Optional<String> getCloudAmqpUrlFromEnv() {
